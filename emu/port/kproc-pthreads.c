@@ -11,6 +11,7 @@
 #include	<limits.h>
 #include	<errno.h>
 #include	<semaphore.h>
+#include	<sched.h>
 
 #ifdef __NetBSD__
 #include	<sched.h>
@@ -218,7 +219,7 @@ osyield(void)
 {
 //	pthread_yield_np();
 	/* define pthread_yield to be sched_yield or pthread_yield_np if required */
-	pthread_yield();
+	sched_yield();
 }
 
 void

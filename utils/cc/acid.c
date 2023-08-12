@@ -1,3 +1,4 @@
+#define EXTERN
 #include "cc.h"
 
 static char *kwd[] =

@@ -1,3 +1,4 @@
+#define EXTERN extern
 #include "gc.h"
 
 static long ncast64[];

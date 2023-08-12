@@ -20,13 +20,13 @@ $ROOT/$SYSTARG/$OBJTYPE/lib/lib%.a:N:	lib%.a
 	$AS $ASFLAGS $stem.S
 
 %.$O:	%.c
-	$CC $CFLAGS $stem.c
+	$CC $CFLAGS -D_GNU_SOURCE $stem.c
 
 %.$O:		../port/%.c
-		$CC $CFLAGS -I. ../port/$stem.c
+		$CC $CFLAGS -D_GNU_SOURCE -I. ../port/$stem.c
 
 %.$O:		../ip/%.c
-		$CC $CFLAGS -I. ../ip/$stem.c
+		$CC $CFLAGS -D_GNU_SOURCE -I. ../ip/$stem.c
 
 &.$O:		$HFILES $PORTHFILES
 

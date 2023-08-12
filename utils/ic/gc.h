@@ -1,3 +1,4 @@
+#define EXTERN
 #include	"../cc/cc.h"
 #include	"../ic/i.out.h"
 
