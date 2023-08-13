@@ -13,6 +13,8 @@ include "sh.m";
 	Listnode, Context: import shell;
 include "string.m";
 	str: String;
+include "daytime.m";
+	daytime: Daytime;
 include "arg.m";
 
 myselfbuiltin: Shellbuiltin;
@@ -64,6 +66,10 @@ init(ctxt: ref Draw->Context, argv: list of string)
 	if(tkclient == nil)
 		badmodule(Tkclient->PATH);
 	tkclient->init();
+
+	daytime = load Daytime Daytime->PATH;
+	if(daytime == nil)
+		badmodule(Daytime->PATH);
 
 	shell = load Sh Sh->PATH;
 	if (shell == nil)
@@ -129,6 +135,9 @@ init(ctxt: ref Draw->Context, argv: list of string)
 	setupfinished := chan of int;
 	donesetup := 0;
 	spawn setup(shctxt, setupfinished);
+	
+	tick := chan of int;
+	spawn timer(tick);
 
 	snarf: array of byte;
 #	write("/prog/"+string sys->pctl(0, nil)+"/ctl", "restricted"); # for testing
@@ -178,6 +187,8 @@ init(ctxt: ref Draw->Context, argv: list of string)
 		rc <-= (snarf[off:e], "");	# XXX alt
 	donesetup = <-setupfinished =>
 		;	
+	<-tick =>
+		tk->cmd(tbtop, ".toolbar.clock configure -label {"+daytime->time()[0:19]+"};update");
 	}
 }
 
@@ -274,6 +285,7 @@ toolbar(ctxt: ref Draw->Context, startmenu: int,
 	cmd(tbtop, "button .b -text {XXX}");
 	cmd(tbtop, "pack propagate . 0");
 
+
 	tk->namechan(tbtop, exec, "exec");
 	tk->namechan(tbtop, task, "task");
 	cmd(tbtop, "frame .toolbar");
@@ -281,9 +293,24 @@ toolbar(ctxt: ref Draw->Context, startmenu: int,
 		cmd(tbtop, "menubutton .toolbar.start -menu .m -borderwidth 0 -bitmap vitasmall.bit");
 		cmd(tbtop, "pack .toolbar.start -side left");
 	}
+
+	st := daytime->time()[0:19];
+	cmd(tbtop, "label .toolbar.clock -label {"+st+"}");
+	cmd(tbtop, "pack .toolbar.clock -side right");
+
 	cmd(tbtop, "pack .toolbar -fill x");
 	cmd(tbtop, "menu .m");
 	return tbtop;
+}
+
+tpid: int;
+timer(c: chan of int)
+{
+	tpid = sys->pctl(0, nil);
+	for(;;) {
+		c <-= 1;
+		sys->sleep(1000);
+	}
 }
 
 setup(shctxt: ref Context, finished: chan of int)
